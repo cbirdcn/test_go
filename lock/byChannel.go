@@ -39,5 +39,5 @@ func main() {
 	defer close(ch) // 记得关闭channel。单一程序是可以自动被GC清理掉channel的。但是如果goroutine很多，机器性能差，长时间积累或短时间爆发会压垮机器的CPU和内存，手动关闭channel是个好习惯。
 
 	time.Sleep(time.Second)
-	fmt.Println(balance)
+	fmt.Println(Balance(ch))
 }

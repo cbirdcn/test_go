@@ -30,5 +30,5 @@ func main() {
 	}()
 
 	time.Sleep(time.Second) // 为了简单，不使用waitGroup
-	fmt.Println(balance)
+	fmt.Println(balance) // 如果使用go run -race race.go会提示，此行也有竟态问题。因为主协程没有加waitGroup等待，所以也可能和子协程并发，所以主协程读余额也要处理
 }

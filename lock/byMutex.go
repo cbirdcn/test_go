@@ -36,5 +36,5 @@ func main(){
     }()
     
     time.Sleep(time.Second)
-    fmt.Println(balance)
+    fmt.Println(Balance()) // 外部也要加锁，因为主协程没有加waitGroup，所以可能和子协程并发
 }

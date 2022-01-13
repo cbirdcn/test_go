@@ -35,5 +35,5 @@ func main() {
 	})
 
 	time.Sleep(time.Second)
-	fmt.Println(balance)
+	fmt.Println(balance) // once无法解决此行race问题
 }

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package proto;
+
+// 声明包被其他程序（比如protoc-gen-go）生成时的路径，当然也可以是`example.com/project/protos/fizz`。
+// 每个包都要声明，否则报错。
+// 如果声明成`./dir_name`就会新建一个文件夹，并生成文件到此文件夹。提供`../current_dir`生成的pb.go中package名是`current_dir`。提供`./`将生成包名为`__`。
+option go_package = "../pb;pb";
+
+import "address.proto";
+import "google/protobuf/any.proto"; // 任意类型
+import "google/protobuf/timestamp.proto"; // 时间戳
+import "google/protobuf/descriptor.proto"; // 自定义描述符
+
+service StuService {
+    rpc GetStudent(GetStudentRequest) returns (GetStudentResponse) {
+    }
+}
+
+message GetStudentRequest {
+    uint32 id = 1;
+}
+
+message GetStudentResponse {
+    Student student = 1;
+}
+
+message Student {
+    uint32 id = 1;
+    string name = 2; // 内置类型
+    Gender gender = 3; // 自定义枚举类型
+    repeated Score scores = 4; // 自定义类型Score的多重结构
+    bool pass_status = 5; // 是否通过考试
+    repeated Homework homeworks = 6; // 个人作业信息
+    address.Address address = 7; // 导入其他包中的地址信息。需要用`package_name.Type`作为类型，而不是`Address`
+    oneof remark { // 评语备注：oneof 只能选择其中之一，最后提供的会覆盖前面的
+        DefaultRemark default_remark = 8; // one_of中的变量名不能是出现过的`remark`，会报错`already defined`
+        string other_remark = 9;
+    }
+    google.protobuf.Any special = 10; // 特长：pb扩展类型any，允许任何类型的值。类型同样使用`package_name.Type`而不是`Any`
+    map<string, double> usual_performances = 11; // 平时表现：map类型：自定义类型->内置类型。另外：Key in map fields cannot be enum types.
+    google.protobuf.Timestamp last_updated = 12;
+}
+
+enum Gender {
+    option allow_alias = true;
+    GENDER_DEFAULT = 0; // 枚举值中有相同值时，后面的都是别名，需要声明allow_alias，否则报错
+    GENDER_UNKNOWN = 0; // 建议：枚举变量名都要带上枚举类名，因为枚举变量名是全局唯一的
+    GENDER_FEMALE = 1;
+    GENDER_MALE = 2;
+}
+
+message Score {
+    Subject subject = 1;
+    double score = 2;
+}
+
+enum Subject {
+    SUBJECT_UNKNOWN = 0; // 注意：protobufV3为了减少无效数据的传输会放弃传输零值数据，比如枚举的0，bool的false，字符串的""。这是设计意图。如果造成困扰可以改用protobufV2并使用required限定。要用v3就避免在枚举中有效值使用零值。
+    SUBJECT_MATH = 1 [(custom_name) = "MATH"];
+    SUBJECT_ENGLISH = 2 [(custom_name) = "ENGLISH"];
+}
+
+message Homework {
+    uint32 id = 1;
+    string url = 2;
+}
+
+enum DefaultRemark {
+    REMARK_EMPTY = 0;
+    REMARK_EXCELLENT = 1;
+    REMARK_GOOD = 2;
+    REMARK_BAD = 3;
+}
+
+extend google.protobuf.EnumValueOptions {
+    string custom_name = 123456789; // 为枚举增加一个自定义选项，顺序为超级大
+}
+
+// 用枚举实现字典(dict)功能
+// 在不同语言的实现中获取此选项的方式不同。
+// 比如Java中是`UnitType.KM_PER_HOUR.getValueDescriptor().getOptions().getExtension(MyOuterClass.name);`
+// Go中，t := pb.PerformanceType_PERFORMANCE_TYPE_ATTENDANCE
+// tt, err := proto.GetExtension(proto.MessageV1(t.Descriptor().Values().ByNumber(t.Number()).Options()), pb.E_CustomName)
+enum PerformanceType {
+    PERFORMANCE_TYPE_ATTENDANCE = 0 [(custom_name) = "ATTENDANCE"]; // 在枚举中想要得到string类型的值，可以指定自定义选项`custom_name`的值。
+    PERFORMANCE_TYPE_MIDTERM = 1 [(custom_name) = "MIDTERM"];
+}

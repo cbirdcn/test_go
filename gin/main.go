@@ -5,15 +5,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // https://geektutu.com/post/quick-go-gin.html
+// https://www.tizi365.com/question/1536.html
 
 func main() {
 	r := gin.Default() // 生成一个应用程序实例
 
 	// 声明一个路由，以及触发的函数
-	// curl http://localhost:8081/
+	// curl http://localhost:8888/
 	r.GET("/", func(c *gin.Context) {
 		// 函数内返回客户端想要的响应
 		c.String(http.StatusOK, "hello world.")
@@ -21,8 +23,9 @@ func main() {
 
 	// 路由方法有 GET, POST, PUT, PATCH, DELETE 和 OPTIONS，还有Any，可匹配以上任意类型的请求。
 
-	// 带参数的URL。:name表示传入不同的 name。/user/:name/*role，* 代表可选。
-	// curl http://localhost:8081/user/geektutu
+	// 带参数的URL
+	// :name表示传入不同的 name。/user/:name/*role，* 代表可选。
+	// curl http://localhost:8888/user/geektutu
 	r.GET("/user/:name", func(c *gin.Context) {
 		name := c.Param("name")
 		c.String(http.StatusOK, "Hello %s", name)
@@ -31,7 +34,7 @@ func main() {
 	// 获取Query参数
 	// 匹配users?name=xxx&role=xxx，role可选
 	// 注意query和param格式的不同
-	// curl "http://localhost:8081/users?name=Tom&role=student"
+	// curl "http://localhost:8888/users?name=Tom&role=student"
 	r.GET("/users", func(c *gin.Context) {
 		name := c.Query("name")
 		role := c.DefaultQuery("role", "teacher") // 为query设置默认值
@@ -39,7 +42,7 @@ func main() {
 	})
 
 	// POST
-	// curl http://localhost:8081/form  -X POST -d 'username=geektutu&password=1234'
+	// curl http://localhost:8888/form  -X POST -d 'username=geektutu&password=1234'
 	r.POST("/form", func(c *gin.Context) {
 		username := c.PostForm("username")
 		password := c.DefaultPostForm("password", "000000") // 可设置默认值
@@ -54,12 +57,12 @@ func main() {
 	})
 
 	// GET 和 POST 混合
-	// curl "http://localhost:8081/posts?id=9876&page=7"  -X POST -d 'username=geektutu&password=1234'
+	// curl "http://localhost:8888/posts?id=9876&page=7"  -X POST -d 'username=geektutu&password=1234'
 	r.POST("/posts", func(c *gin.Context) {
 		id := c.Query("id")
 		page := c.DefaultQuery("page", "0")
 		username := c.PostForm("username")
-		password := c.DefaultPostForm("username", "000000") // 可设置默认值
+		password := c.DefaultPostForm("password", "000000") // 可设置默认值
 
 		c.JSON(http.StatusOK, gin.H{
 			"id":       id,
@@ -70,7 +73,7 @@ func main() {
 	})
 
 	// Map参数(字典参数)
-	// curl -g "http://localhost:8081/post?ids[Jack]=001&ids[Tom]=002" -X POST -d 'names[a]=Sam&names[b]=David'
+	// curl -g "http://localhost:8888/post?ids[Jack]=001&ids[Tom]=002" -X POST -d 'names[a]=Sam&names[b]=David'
 	// {"ids":{"Jack":"001","Tom":"002"},"names":{"a":"Sam","b":"David"}}
 	r.POST("/post", func(c *gin.Context) {
 		ids := c.QueryMap("ids")
@@ -84,8 +87,8 @@ func main() {
 
 	// 重定向(Redirect)
 	// https://pkg.go.dev/gopkg.in/gin-gonic/gin.v1#section-readme
-	// curl -i http://localhost:8081/redirect
-	// curl "http://localhost:8081/reindex"
+	// curl -i http://localhost:8888/redirect
+	// curl "http://localhost:8888/reindex"
 	// Issuing a HTTP redirect is easy. Both internal and external locations are supported.
 	r.GET("/redirect", func(c *gin.Context) {
 		// http重定向
@@ -98,8 +101,8 @@ func main() {
 	})
 
 	// 分组路由(Grouping Routes)
-	// curl http://localhost:8081/v1/posts
-	// curl http://localhost:8081/v2/posts
+	// curl http://localhost:8888/v1/posts
+	// curl http://localhost:8888/v2/posts
 	defaultHandler := func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"path": c.FullPath(),
@@ -139,7 +142,7 @@ func main() {
 	})
 
 	// HTML模板
-	// curl http://localhost:8081/arr
+	// curl http://localhost:8888/arr
 	// Gin默认使用模板Go语言标准库的模板text/template和html/template
 	// 标准库：https://pkg.go.dev/text/template
 	// https://pkg.go.dev/html/template
@@ -158,5 +161,30 @@ func main() {
 		})
 	})
 
-	r.Run(":8081") //让应用运行在一个本地服务器上，监听端口默认为8080
+	// 参数校验
+	// curl http://localhost:8888/json  -X POST -d '{"user": "a", "password": "1"}'
+	// 在结构体字段上通过设置binding标签属性设置required，表示字段必填
+	type Login struct {
+		User     string `json:"user" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	r.POST("/json", func(c *gin.Context) {
+        var json Login
+        // 将请求参数绑定到结构体，会自动进行参数校验
+        if err := c.ShouldBindWith(&json, binding.JSON); err == nil {
+			// 参数校验成功
+			c.JSON(http.StatusOK, gin.H{
+				"user":   json.User,
+				"password": json.Password,
+			})
+        } else {
+          // 参数校验失败，返回错误
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        }
+    })
+
+	// 跨域
+	// https://www.tizi365.com/question/1686.html
+
+	r.Run(":8888") //让应用运行在一个本地服务器上，监听端口默认为8888
 }

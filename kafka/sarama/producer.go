@@ -18,7 +18,7 @@ func main() {
 	msg.Topic = "web_log"
 	msg.Value = sarama.StringEncoder("this is a test log")
 	// 连接kafka
-	client, err := sarama.NewSyncProducer([]string{"127.0.0.1:9092"}, config)
+	client, err := sarama.NewSyncProducer([]string{"host.docker.internal:9092"}, config)
 	if err != nil {
 		fmt.Println("producer closed, err:", err)
 		return
@@ -32,3 +32,13 @@ func main() {
 	}
 	fmt.Printf("partition_id:%v offset:%v\n", pid, offset)
 }
+
+/*
+输出：
+
+第一次：
+partition_id:0 offset:0
+
+第二次：
+partition_id:0 offset:1
+*/

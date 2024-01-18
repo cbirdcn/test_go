@@ -1,0 +1,20 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Launch remote",
+            "type": "go", 
+            "request": "launch",
+            "mode": "debug", // 开启远程模式
+            // "remotePath": "/data/workspace/test_go/reload/plugin", // 远端main文件所在目录,必须是绝对路径
+            "port": 8888, // dlv服务的暴露端口号
+            "host": "localhost", // dlv服务的ip即docker容器所在主机的ip
+            "program": "${workspaceRoot}",// 本地main文件所在的目录
+            "env": {}
+        }
+    ]
+}

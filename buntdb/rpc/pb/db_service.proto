@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package proto;
+
+// 声明包被其他程序（比如protoc-gen-go）生成时的路径，当然也可以是`example.com/project/protos/fizz`。
+// 每个包都要声明，否则报错。
+// 如果声明成`./dir_name`就会新建一个文件夹，并生成文件到此文件夹。提供`../current_dir`生成的pb.go中package名是`current_dir`。提供`./`将生成包名为`__`。
+option go_package = "../pb;pb";
+
+// import "google/protobuf/any.proto"; // 任意类型
+// import "google/protobuf/timestamp.proto"; // 时间戳
+// import "google/protobuf/descriptor.proto"; // 自定义描述符
+
+service DBService {
+    rpc Set(SetRequest) returns (SetResponse) {
+    }
+}
+
+message SetRequest {
+    uint64 msg_id = 1;
+    uint64 user_id = 2;
+    string op = 3;
+    string key = 4;
+    string value = 5;
+}
+
+message SetResponse {
+    uint64 msg_id = 1;
+    uint64 user_id = 2;
+    uint64 status = 3;
+    string reason = 4;
+    string data = 5;
+}

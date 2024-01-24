@@ -96,5 +96,7 @@ func main() {
 go run server.go 
 
 浏览器打开http://127.0.0.1:8888/index，确认Status: Connected
-输入"a"，界面显示回声"a"，查看网络耗时2-3ms
+输入：
+{"r":"/set", "d":"{}", "u":"1", "t":"1700000000"}
+界面显示回声"haha"，查看网络耗时2-3ms
 */

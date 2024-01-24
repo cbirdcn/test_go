@@ -13,9 +13,10 @@ import (
 )
 
 // const MONGODB_URI = "mongodb://root:123456@host.docker.internal:27011/?maxPoolSize=10&minPoolSize=2&maxConnecting=2&w=mojority" // 单机
-const MONGODB_URI = "mongodb://root:123456@172.22.0.3:27011,172.22.0.4:27012,172.22.0.5:27013/?directConnection=true" // 内外集群
+const MONGODB_URI = "mongodb://root:123456@172.23.0.2:27017,172.23.0.4:27017,172.23.0.3:27017/?directConnection=true" // 内外集群
 // const MONGODB_URI = "mongodb://root:123456@host.docker.internal:27011,host.docker.internal:27012,host.docker.internal:27013/?directConnection=true" // 外网集群
-const MONGODB_URI_WITHOUT_CREDENTIAL = "mongodb://host.docker.internal:27011/?directConnection=true"
+// const MONGODB_URI_WITHOUT_CREDENTIAL = "mongodb://host.docker.internal:27011/?directConnection=true"
+const MONGODB_URI_WITHOUT_CREDENTIAL = "mongodb://172.23.0.3:27017/?directConnection=true"
 const MONGODB_USERNAME = "root"
 const MONGODB_PASSWORD = "123456"
 const DB_GLOBAL = "global"
@@ -491,6 +492,71 @@ spend micro 138
     "name": "Bob",
     "uid": "13732795"
 }
+*/
+
+
+
+
+
+/*
+容器内网运行第一遍
+
+spend micro 17814
+----------------
+DeleteManyData
+spend micro 549
+0
+----------------
+AddOneData
+spend micro 14623
+&{13732795}
+13732795
+13732795
+----------------
+AddManyData
+spend micro 617
+&{[13732795a 13732795b]}
+[13732795a 13732795b]
+13732795a
+13732795b
+----------------
+UpsertOneData
+spend micro 989
+0
+1
+----------------
+FindOneDataToBson
+spend micro 615
+map[_id:ObjectID("65b0e25bcbd291674814737c") name:Bob uid:13732795]
+----------------
+FindOneDataToStructByBsonFilter
+spend micro 708
+{65b0e25bcbd291674814737c Bob}
+----------------
+FindOneDataToStructByStructFilter
+spend micro 524
+{65b0e25bcbd291674814737c Bob}
+----------------
+FindManyDataToStructByBsonFilter
+spend micro 1496
+{13732795 Bob}
+{13732795a Bob}
+{13732795b Bob}
+{65b0e25bcbd291674814737c Bob}
+----------------
+json
+spend micro 40
+{
+    "_id": "65b0e25bcbd291674814737c",
+    "name": "Bob",
+    "uid": "13732795"
+}
+{
+    "_id": "65b0e25bcbd291674814737c",
+    "name": "Bob",
+    "uid": "13732795"
+}
+
 */
 
 

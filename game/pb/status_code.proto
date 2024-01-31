@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package status_code;
+
+option go_package = "../pb;pb";
+
+enum StatusCode {
+    // 基础错误码，系统错误
+    STATUS_CODE_OK = 0;
+    STATUS_CODE_UNKNOWN_ERROR = 1;
+
+    // 中间件错误
+    STATUS_CODE_READ_ERROR = 101;
+    STATUS_CODE_WRITE_ERROR = 102;
+
+    // 用户操作
+    STATUS_CODE_USER_EXIST = 1001;
+    STATUS_CODE_USER_NOT_EXIST = 1002;
+    STATUS_CODE_ADD_USER_FAIL = 1003;
+}
+
+// message Address {
+//     string address = 1;
+//     Province province = 2;
+//     City city = 3;
+// }
+
+// enum Province {
+//     PROVINCE_UNKNOWN = 0; // 枚举值首位必须是0。主要是为了兼容proto2。实际使用pb时，变量名为Type_VARNAME，也就是Province_PROVINCE_UNKNOWN
+//     PROVINCE_BEIJING = 1;
+//     PROVINCE_SHANGHAI = 2;
+//     PROVINCE_GUANGDONG = 3;
+// }
+
+// enum City {
+//     option allow_alias = true; // 当枚举中有两个常量表示同一个值时，需要声明`允许别名`
+//     CITY_UNKNOWN = 0; // 如果Province和City中都出现UNKNOWN，而不是TYPE_UNKNOWN，就会报错`already defined`，所以enum定义的变量是全局唯一的
+//     CITY_CAPITAL = 1;
+//     CITY_BEIJING = 1;
+//     CITY_SHANGHAI = 2;
+//     CITY_GUANGZHOU = 3;
+// }
